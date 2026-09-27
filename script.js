@@ -116,29 +116,54 @@ function startLevel(diff, idx){
   el('pauseOverlay').classList.remove('show');
   const {cols} = gridDims(cards.length);
   el('board').style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-  renderBoard();
+  buildBoard();
   showScreen('game');
   startTimerTick();
 }
 
-function renderBoard(){
+// สร้าง DOM การ์ดครั้งเดียวตอนเริ่มด่าน แล้วอัปเดต class บน element เดิม
+// เพื่อให้ CSS transition/animation ตอนเปิด-ปิด-จับคู่ทำงานจริง (ไม่ rebuild ใหม่ทุกครั้ง)
+function buildBoard(){
   const board = el('board');
   board.innerHTML = '';
   cards.forEach(c=>{
-    const card = document.createElement('div');
-    card.className = 'card' + (c.flipped?' flipped':'') + (c.matched?' matched':'');
-    card.innerHTML = `<div class="card-inner">
+    const cardEl = document.createElement('div');
+    cardEl.className = 'card';
+    cardEl.innerHTML = `<div class="card-inner">
         <div class="face front">❓</div>
         <div class="face back">${c.icon}</div>
       </div>`;
-    if(!c.flipped && !c.matched){
-      card.tabIndex = 0;
-      card.setAttribute('role', 'button');
-      card.setAttribute('aria-label', 'เปิดการ์ด');
-    }
-    bindActivate(card, ()=>onCardClick(c.id));
-    board.appendChild(card);
+    bindActivate(cardEl, ()=>onCardClick(c.id));
+    board.appendChild(cardEl);
+    c.el = cardEl;
+    updateCardVisual(c);
   });
+  updateStats();
+}
+
+function updateCardVisual(c){
+  const cardEl = c.el;
+  if(!cardEl) return;
+  cardEl.classList.toggle('flipped', c.flipped && !c.matched);
+  cardEl.classList.toggle('matched', c.matched);
+  if(c.flipped || c.matched){
+    cardEl.removeAttribute('tabindex');
+    cardEl.removeAttribute('role');
+    cardEl.removeAttribute('aria-label');
+  } else {
+    cardEl.tabIndex = 0;
+    cardEl.setAttribute('role', 'button');
+    cardEl.setAttribute('aria-label', 'เปิดการ์ด');
+  }
+}
+
+function playOnce(cardEl, className){
+  if(!cardEl) return;
+  cardEl.classList.add(className);
+  cardEl.addEventListener('animationend', ()=> cardEl.classList.remove(className), {once:true});
+}
+
+function updateStats(){
   el('pairsVal').textContent = `${matchedCount}/${cards.length/2}`;
   el('movesVal').textContent = moves;
 }
@@ -148,27 +173,31 @@ function onCardClick(id){
   const card = cards.find(c=>c.id===id);
   if(!card || card.flipped || card.matched) return;
   card.flipped = true;
+  updateCardVisual(card); // เริ่มแอนิเมชั่นเปิดการ์ด
   flipped.push(card);
   beep(520,.08);
-  renderBoard();
   if(flipped.length === 2){
     moves++;
     locked = true;
+    updateStats();
     const [a,b] = flipped;
     if(a.icon === b.icon){
       setTimeout(()=>{
         a.matched = true; b.matched = true;
+        updateCardVisual(a); updateCardVisual(b);
+        playOnce(a.el, 'match-anim'); playOnce(b.el, 'match-anim'); // แอนิเมชั่นเด้งตอนจับคู่ถูก
         matchedCount++; flipped = []; locked = false;
         beep(760,.15);
-        renderBoard();
+        updateStats();
         if(matchedCount === cards.length/2) onWin();
       }, 350);
     } else {
+      playOnce(a.el, 'wrong-anim'); playOnce(b.el, 'wrong-anim'); // แอนิเมชั่นสั่นตอนจับคู่ผิด
       setTimeout(()=>{
         a.flipped = false; b.flipped = false;
+        updateCardVisual(a); updateCardVisual(b); // แอนิเมชั่นปิดการ์ดกลับ
         flipped = []; locked = false;
         beep(220,.15);
-        renderBoard();
       }, 700);
     }
   }
