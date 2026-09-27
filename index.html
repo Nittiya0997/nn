@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>จับคู่ภาพ</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1b1035">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="จับคู่ภาพ">
+</head>
+<body>
+<div class="wrap">
+  <!-- SCREEN 1: เลือกความยาก -->
+  <div class="screen active" id="screenDifficulty">
+    <h1>🎴 จับคู่ภาพ</h1>
+    <p class="sub">เลือกระดับความยากเพื่อเริ่มเล่น</p>
+    <div class="diff-list">
+      <div class="diff-btn easy" data-diff="easy" tabindex="0" role="button">😊 ง่าย <span class="tag">3 ด่าน</span></div>
+      <div class="diff-btn medium" data-diff="medium" tabindex="0" role="button">🙂 ปานกลาง <span class="tag">3 ด่าน</span></div>
+      <div class="diff-btn hard" data-diff="hard" tabindex="0" role="button">🔥 ยาก <span class="tag">3 ด่าน</span></div>
+    </div>
+  </div>
+  <!-- SCREEN 2: เลือกด่าน -->
+  <div class="screen" id="screenLevels">
+    <div class="topbar">
+      <div class="icon-btn" id="toDiffBtn" tabindex="0" role="button" aria-label="กลับหน้าหลัก">🏠</div>
+      <h2 id="levelsTitle">ระดับ</h2>
+      <div style="width:38px;"></div>
+    </div>
+    <div class="level-grid" id="levelGrid"></div>
+  </div>
+  <!-- SCREEN 3: เกม -->
+  <div class="screen" id="screenGame">
+    <div class="topbar">
+      <div class="icon-btn" id="backBtn" tabindex="0" role="button" aria-label="ย้อนกลับ">⬅</div>
+      <h2 id="gameTitle">ด่าน 1</h2>
+      <div class="icon-btn" id="pauseBtn" tabindex="0" role="button" aria-label="หยุดชั่วคราว">⏸</div>
+    </div>
+    <div class="stats">
+      <div class="stat">เวลา<b id="timeVal">0:00</b></div>
+      <div class="stat">ตาที่เดิน<b id="movesVal">0</b></div>
+      <div class="stat">คู่ที่เจอ<b id="pairsVal">0/0</b></div>
+    </div>
+    <div class="board" id="board"></div>
+  </div>
+</div>
+<!-- Overlay: หยุดชั่วคราว -->
+<div class="overlay" id="pauseOverlay">
+  <div class="modal">
+    <h2>⏸ หยุดชั่วคราว</h2>
+    <p>เวลาถูกหยุดไว้ชั่วคราว</p>
+    <button class="btn" id="resumeBtn">▶ เล่นต่อ</button>
+    <button class="btn ghost" id="restartLevelBtn">🔄 เริ่มด่านนี้ใหม่</button>
+    <button class="btn ghost" id="pauseHomeBtn">🏠 กลับหน้าหลัก</button>
+  </div>
+</div>
+<!-- Overlay: ชนะ -->
+<div class="overlay" id="winOverlay">
+  <div class="modal">
+    <h2>🎉 ผ่านด่าน!</h2>
+    <div class="row">
+      <div>เวลา<b id="winTime"></b></div>
+      <div>ตาที่เดิน<b id="winMoves"></b></div>
+    </div>
+    <div id="winButtons"></div>
+  </div>
+</div>
+<script src="script.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
