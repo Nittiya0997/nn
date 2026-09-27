@@ -59,6 +59,23 @@ h1{font-size:1.5rem; margin:4px 0 2px; text-align:center; display:flex; align-it
 .back{background:var(--card); transform:rotateY(180deg); font-size:1.7rem;}
 .card.matched .back{box-shadow:0 0 0 2px var(--good) inset; opacity:.85;}
 .card:not(.flipped):not(.matched):active .card-inner{transform:scale(.94);}
+
+@keyframes cardPop{
+  0%{transform:rotateY(180deg) scale(1);}
+  45%{transform:rotateY(180deg) scale(1.18); filter:drop-shadow(0 0 10px var(--good));}
+  100%{transform:rotateY(180deg) scale(1);}
+}
+.card.match-anim .card-inner{animation:cardPop .5s ease;}
+
+@keyframes cardShake{
+  0%,100%{transform:rotateY(180deg) translateX(0);}
+  20%{transform:rotateY(180deg) translateX(-7px);}
+  40%{transform:rotateY(180deg) translateX(7px);}
+  60%{transform:rotateY(180deg) translateX(-5px);}
+  80%{transform:rotateY(180deg) translateX(5px);}
+}
+.card.wrong-anim .card-inner{animation:cardShake .4s ease;}
+.card.wrong-anim .back{box-shadow:0 0 0 2px #ff6b6b inset;}
 .overlay{
   position:fixed; inset:0; background:rgba(10,5,25,.78); z-index:1000;
   display:flex; align-items:center; justify-content:center; padding:20px;
